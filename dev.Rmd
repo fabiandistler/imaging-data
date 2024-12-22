@@ -37,7 +37,7 @@ df_traces <- t(df[["caim"]][[15]]) |>
   tibble::as_tibble(, .name_repair = function(x) as.character(seq_along(x))) |>
   tidytable::mutate(time_ms = df_behavior$time_ms) |>
   tidytable::pivot_longer(
-    cols = tidytable::everything(),
+    cols = -time_ms,
     names_to = "component",
     values_to = "normalized_signal"
   )
