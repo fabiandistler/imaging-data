@@ -6,7 +6,6 @@ date: "2024-12-21"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidytable)
 ```
 
 First load a single data set to see how the data structure looks like.
@@ -19,27 +18,38 @@ df <- R.matlab::readMat(
 ```
 
 ```{r}
-df_behavior <- tibble::tibble(
-  time_ms = df[["scn"]][[3]][, 1],
-  tone_one = unlist(df[["scn"]][[25]][1], use.names = FALSE),
+df_behavior <- tsibble::tsibble(
+  time_s = hms::as_hms(df[["scn"]][[3]][, 1] / 1000), # Format to seconds
+  tone_on = as.logical(unlist(df[["scn"]][[25]][1], use.names = FALSE)),
   pupil_size = unlist(df[["scn"]][[2]], use.names = FALSE)[, 1],
-  airpuff_on = unlist(df[["scn"]][[28]][1], use.names = FALSE),
-  running_speed = unlist(df[["scn"]][[5]][[1]], use.names = FALSE)
+  airpuff_on = as.logical(unlist(df[["scn"]][[28]][1], use.names = FALSE)),
+  running_speed = unlist(df[["scn"]][[5]][[1]], use.names = FALSE),
+  index = time_s,
+  regular = FALSE
 )
-
-rio::export(df_behavior, "data/df_behavior.rds")
 ```
 
 
 ```{r}
 df_traces <- t(df[["caim"]][[15]]) |>
   # Create tibble with numeric column names
-  tibble::as_tibble(, .name_repair = function(x) as.character(seq_along(x))) |>
-  tidytable::mutate(time_ms = df_behavior$time_ms) |>
+  tibble::as_tibble(, .name_repair = function(x) paste0("component_", (seq_along(x))))
+```
+
+
+```{r}
+df_all <- tidytable::bind_cols(df_behavior, df_traces) |>
   tidytable::pivot_longer(
-    cols = -time_ms,
-    names_to = "component",
+    cols = tidytable::starts_with("component_"),
+    names_to = "component_id",
     values_to = "normalized_signal"
+  ) |>
+  tsibble::as_tsibble(
+    key = tidytable::starts_with("component_"),
+    index = time_s,
+    regular = FALSE
   )
-rio::export(df_traces, "data/df_traces.rds")
+```
+```{r}
+rio::export(df_all, "data/df_clean.rds")
 ```
