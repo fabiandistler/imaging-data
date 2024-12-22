@@ -1,0 +1,142 @@
+---
+title: Exploratory Data Analysis
+author: "John Doe"
+date-modified: "`r paste('Last rendered:', Sys.Date())`"
+keep-md: false
+format: 
+  html:
+    default: true
+    code-fold: true
+    toc: true
+    self-contained: true
+    fig-width: 6
+    fig-asp: 0.618
+    out-width: "70%"
+    fig-align: center
+    highlight-style: github
+  pptx:
+    # reference-doc: template.pptx can add template to folder or quarto
+    fig-format: png
+    fig-dpi: 300
+    fig-width: 10
+    fig-asp: 0.618
+    fig-align: center
+---
+
+```{r setup, include=FALSE}
+
+```
+
+# Load cleaned data.
+```{r}
+df <- rio::import("../data/df_behavior.rds")
+```
+
+
+```{r, eval=FALSE,include=FALSE}
+# These are interactive helpers which can we useful to get a quick overview of
+# your data.
+
+radiant::radiant(df)
+
+DataExplorer::create_report(df)
+
+ggquickeda::run_ggquickeda(df)
+```
+
+# Look at the data.
+```{r}
+dplyr::glimpse(df)
+
+str(df)
+
+skimr::skim(df)
+
+Hmisc::describe(df)
+```
+
+# Summary table and multiple comparisons.
+```{r}
+# Set theme.
+gtsummary::theme_gtsummary_compact()
+gtsummary::theme_gtsummary_eda()
+gtsummary::theme_journal()
+
+# Create table.
+gtsummary::tbl_summary(
+  data,
+  by = NULL,
+  label = NULL,
+  statistic = NULL,
+  digits = NULL,
+  type = NULL,
+  value = NULL,
+  missing_text = "Missing",
+  sort = NULL,
+  percent = NULL
+) %>%
+  gtsummary::bold_labels() %>%
+  gtsummary::add_p(pvalue_fun = ~ gtsummary::style_pvalue(.x, digits = 3)) %>%
+  gtsummary::bold_p() %>%
+  gtsummary::modify_spanning_header(c("stat_1", "stat_2") ~ "**XX used**") %>%
+  gtsummary::separate_p_footnotes() %>%
+  gtsummary::as_gt() %>%
+  # gt::gtsave("XX_data_overview.png") # Other formats available.
+```
+
+
+# Plotters.
+```{r}
+esquisse::esquisser(df)
+
+GGally::ggduo(
+  data = df,
+  mapping = aes(color = cyl), # Subset data by aes() variable.
+  columnsX = 1:ncol(data), # Columns to choose.
+  columnsY = 1:ncol(data),
+  title = NULL,
+  types = list( # See documentation for available plots.
+    continuous = "smooth_loess", comboVertical = "box_no_facet",
+    comboHorizontal = "facethist", discrete = "count"
+  ),
+  axisLabels = c("show", "none"),
+  columnLabelsX = janitor::make_clean_names(names(df), case = "title"), # Use nice labels.
+  columnLabelsY = colnames(data[columnsY]),
+  labeller = "label_value", # Labels for facetting.
+  switch = NULL, # Control position of labels.
+  xlab = NULL,
+  ylab = NULL,
+  legend = NULL
+)
+
+# Plot outcome with potential explanatory variables.
+GGally::ggbivariate(
+  data = df,
+  outcome,
+  explanatory = NULL,
+  mapping = NULL, # Same as for ggduo().
+  types = NULL,
+  ...
+)
+
+# Cross tables.
+GGally::ggtable(
+  df,
+  columnsX = 1:ncol(data),
+  columnsY = 1:ncol(data),
+  cells = c("observed", "prop", "row.prop", "col.prop", "expected", "resid", "std.resid"),
+  fill = c("none", "std.resid", "resid"),
+  mapping = NULL
+)
+```
+
+
+## Tricks
+Add conditional wrappers to only render chunks for certain formats. E.g. you
+only want to render certain chunks for Powerpoint and all chunks for html:
+<!-- ::: {.content-visible when-format="html"} -->
+<!-- ::: -->
+Then add slides like this
+
+## Slide title
+slide content
