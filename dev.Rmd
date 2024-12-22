@@ -48,8 +48,11 @@ df_all <- tidytable::bind_cols(df_behavior, df_traces) |>
     key = tidytable::starts_with("component_"),
     index = time_s,
     regular = FALSE
-  )
+  ) |>
+  tidytable::mutate(component_id = as.integer(
+    readr::parse_number(component_id)))
 ```
+
 ```{r}
 rio::export(df_all, "data/df_clean.rds")
 ```
