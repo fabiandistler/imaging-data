@@ -6,8 +6,7 @@ date: "2024-12-21"
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
-library(tidyr)
-library(dplyr)
+library(tidytable)
 ```
 
 First load a single data set to see how the data structure looks like.
@@ -26,51 +25,17 @@ df_clean <- tibble::tibble(
   pupil_size = unlist(df[["scn"]][[2]], use.names = FALSE)[, 1],
   airpuff_on = unlist(df[["scn"]][[28]][1], use.names = FALSE),
   running_speed = unlist(df[["scn"]][[5]][[1]], use.names = FALSE)
-) 
-# %>%
-  # Add normalized_signal by transforming and pivoting 'df[["caim"]][[15]][[1]]'
-  # bind_cols(
-    #   t <- tibble::tibble(
-    #     normalized_signal = t(df[["caim"]][[15]]) %>%
-    #       as_tibble(.name_repair = function(x) as.character(seq_along(x)))
-    # %>%
-    #   pivot_longer(
-    #     cols = everything(),
-    #     names_to = "component",
-    #     values_to = "normalized_signal"
-    #   )$normalized_signal
-    # temp2
-  # )
-# )
+)
 ```
 
 
 ```{r}
-{
-  temp <- t(df[["caim"]][[15]])
+traces <- t(df[["caim"]][[15]]) |>
   # Create tibble with numeric column names
-  temp <- tibble::as_tibble(temp, .name_repair = function(x) as.character(seq_along(x)))
-
-  # Pivot temp
-  temp2 <- tidyr::pivot_longer(temp,
-    cols = dplyr::everything(),
+  tibble::as_tibble(, .name_repair = function(x) as.character(seq_along(x))) |>
+  tidytable::pivot_longer(
+    cols = tidytable::everything(),
     names_to = "component",
     values_to = "normalized_signal"
   )
-}
-```
-
-
-
-```{r}
-df_clean <- tibble::tibble(
-  time_ms = df[["scn"]][[3]][[1]][, 1],
-  # normalized_signal = t(df[["caim"]][[15]][[1]])[, 1],
-  tone_one = unlist(df[["scn"]][[25]][[1]][[, 1]], use.names = FALSE),
-  pupil_size = unlist(df[["scn"]][[2]][[1]][, 1], use.names = FALSE),
-  airpuff_on = unlist(df[["scn"]][[28]][[1]][[1]], use.names = FALSE)
-)
-
-
-running_speed <- tibble::as_tibble(df[["scn"]][[5]][[1]], .name_repair = "unique")
 ```
