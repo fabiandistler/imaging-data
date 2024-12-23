@@ -15,17 +15,20 @@ file <- "CD27.160221.1535pro.mat"
 df <- R.matlab::readMat(
   file
 )
+
+gc()
 ```
 
 ```{r}
 df_behavior <- tsibble::tsibble(
-  time_s = hms::as_hms(df[["scn"]][[3]][, 1] / 1000), # Format to seconds
+  # Time is not regular
+  # time_s = hms::as_hms(df[["scn"]][[3]][, 1] / 1000), # Format to seconds
+  frame = tidytable::row_number(df[["scn"]][[3]][, 1]),
   tone_on = as.logical(unlist(df[["scn"]][[25]][1], use.names = FALSE)),
   pupil_size = unlist(df[["scn"]][[2]], use.names = FALSE)[, 1],
   airpuff_on = as.logical(unlist(df[["scn"]][[28]][1], use.names = FALSE)),
   running_speed = unlist(df[["scn"]][[5]][[1]], use.names = FALSE),
-  index = time_s,
-  regular = FALSE
+  index = frame
 )
 ```
 
@@ -49,8 +52,7 @@ df_all <- tidytable::bind_cols(df_behavior, df_traces) |>
   )) |>
   tsibble::as_tsibble(
     key = component_id,
-    index = time_s,
-    regular = FALSE
+    index = frame
   )
 ```
 
