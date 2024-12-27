@@ -21,9 +21,10 @@ CREATE TABLE Behavior (
 
 -- Create Components Table
 CREATE TABLE Components (
-    component_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    component_id INTEGER NOT NULL,
     frame_id INTEGER NOT NULL,
     onset_value INTEGER NOT NULL,
-    -- Ensure that deleting a row in Behavior also deletes corresponding rows in Components
+    PRIMARY KEY (component_id, frame_id),
+    -- The ON DELETE CASCADE clause ensures that deleting a row in Behavior also deletes corresponding rows in Components
     FOREIGN KEY (frame_id) REFERENCES Behavior (frame_id) ON DELETE CASCADE
 );
