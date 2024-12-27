@@ -9,6 +9,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 First load a single data set to see how the data structure looks like.
+
 ```{r}
 file <- "CD27.160221.1535pro.mat"
 
@@ -32,13 +33,11 @@ df_behavior <- tsibble::tsibble(
 )
 ```
 
-
 ```{r}
 df_traces <- t(df[["caim"]][[15]]) |>
   # Create tibble with numeric column names
   tibble::as_tibble(, .name_repair = function(x) paste0("component_", (seq_along(x))))
 ```
-
 
 ```{r}
 df_all <- tidytable::bind_cols(df_behavior, df_traces) |>
