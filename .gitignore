@@ -6,3 +6,4 @@
 .quarto
 *.mat
 *.rds
+*.db
