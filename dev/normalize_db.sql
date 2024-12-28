@@ -9,8 +9,8 @@ CREATE TABLE recording_per_mouse (
     recording_id TEXT NOT NULL,
     mouse_id TEXT NOT NULL,
     PRIMARY KEY (recording_id, mouse_id),
-    FOREIGN KEY (recording_id) REFERENCES recording(recording_id),
-    FOREIGN KEY (mouse_id) REFERENCES mouse(mouse_id)
+    FOREIGN KEY (recording_id) REFERENCES recording (recording_id),
+    FOREIGN KEY (mouse_id) REFERENCES mouse (mouse_id)
 );
 
 CREATE TABLE frame (
@@ -18,13 +18,19 @@ CREATE TABLE frame (
     recording_id TEXT NOT NULL,
     frame_number INTEGER NOT NULL,
     running_speed REAL NOT NULL,
-    stimulus_type TEXT NOT NULL,
-    FOREIGN KEY (recording_id) REFERENCES recording(recording_id)
+    stimulus_id INTEGER NOT NULL,
+    FOREIGN KEY (recording_id) REFERENCES recording (recording_id),
+    FOREIGN KEY (stimulus_id) REFERENCES stimulus (stimulus_id)
 );
 
 CREATE TABLE component (
     component_id INTEGER PRIMARY KEY,
     frame_id INTEGER NOT NULL,
     onset_value INTEGER NOT NULL,
-    FOREIGN KEY (frame_id) REFERENCES frame(frame_id)
+    FOREIGN KEY (frame_id) REFERENCES frame (frame_id)
+);
+
+CREATE TABLE stimulus (
+    stimulus_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    stimulus_type TEXT NOT NULL
 );
