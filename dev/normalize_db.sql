@@ -1,6 +1,6 @@
 CREATE TABLE recording (
     recording_id INTEGER PRIMARY KEY,
-    recording_type TEXT NOT NULL
+    recording_type TEXT NOT NULL 
 );
 
 CREATE TABLE mouse (mouse_id TEXT PRIMARY KEY);
@@ -41,8 +41,8 @@ CREATE TABLE stimulus (
 -- Transfer data to new tables
 
 -- Insert unique recordings
-INSERT INTO recording (recording_id, recording_type)
-SELECT DISTINCT session_id AS recording_id, session_type AS recording_type
+INSERT INTO recording (recording_type)
+SELECT DISTINCT session_type AS recording_type
 FROM frame_level_data;
 
 -- Insert unique mice
@@ -52,10 +52,11 @@ SELECT DISTINCT
     mouse_id
 FROM frame_level_data;
 
--- Insert recording per mouse
+-- Insert recording per mouse manually by expanding all combinations
 INSERT INTO recording_per_mouse (recording_id, mouse_id)
-SELECT DISTINCT session_type AS recording_id, mouse_id
-FROM frame_level_data;
+SELECT DISTINCT r.recording_id, m.mouse_id
+FROM recording r
+CROSS JOIN mouse m;
 
 -- Insert unique stimuli
 INSERT INTO
