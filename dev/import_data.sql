@@ -9,14 +9,13 @@ CREATE TABLE temp_table (
     onset_value INTEGER NOT NULL
 );
 
-
 -- Run import.py
 
 -- Normalize data base
 
 CREATE TABLE recording (
     recording_id INTEGER PRIMARY KEY,
-    recording_type TEXT NOT NULL 
+    recording_type TEXT NOT NULL
 );
 
 CREATE TABLE mouse (mouse_id TEXT PRIMARY KEY);
@@ -47,39 +46,41 @@ CREATE TABLE component (
 );
 
 CREATE TABLE stimulus (
-    stimulus_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    stimulus_id INTEGER PRIMARY KEY,
     stimulus_type TEXT NOT NULL
 );
-
-
-
 
 -- Transfer data to new tables
 
 -- Insert unique recordings
-INSERT INTO recording (recording_type)
-SELECT DISTINCT session_type AS recording_type
-FROM frame_level_data;
+INSERT INTO
+    recording (recording_type)
+SELECT DISTINCT
+    session_type AS recording_type
+FROM temp_table;
 
 -- Insert unique mice
 INSERT INTO
     mouse (mouse_id)
 SELECT DISTINCT
     mouse_id
-FROM frame_level_data;
+FROM temp_table;
 
 -- Insert recording per mouse manually by expanding all combinations
-INSERT INTO recording_per_mouse (recording_id, mouse_id)
-SELECT DISTINCT r.recording_id, m.mouse_id
+INSERT INTO
+    recording_per_mouse (recording_id, mouse_id)
+SELECT DISTINCT
+    r.recording_id,
+    m.mouse_id
 FROM recording r
-CROSS JOIN mouse m;
+    CROSS JOIN mouse m;
 
 -- Insert unique stimuli
 INSERT INTO
     stimulus (stimulus_type)
 SELECT DISTINCT
     stimulus_type
-FROM frame_level_data;
+FROM temp_table;
 
 -- Insert frames
 INSERT INTO
@@ -91,8 +92,7 @@ INSERT INTO
         stimulus_id
     )
 SELECT f.frame_id, f.session_type AS recording_id, f.frame_number, f.running_speed, s.stimulus_id
-FROM
-    frame_level_data f
+FROM temp_table f
     JOIN stimulus s ON f.stimulus_type = s.stimulus_type;
 
 -- Insert components
@@ -106,4 +106,4 @@ SELECT
     component_id,
     frame_id,
     onset_value
-FROM frame_level_data;
+FROM temp_table;
